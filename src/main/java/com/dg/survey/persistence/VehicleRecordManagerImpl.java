@@ -86,7 +86,7 @@ public class VehicleRecordManagerImpl implements VehicleRecordManager {
 		int count = 0;
 		BufferedReader br = null;
 
-		final String rawDataRegEx = "^[A,B]\\d*";
+		String rawDataRegEx = "^[A,B]\\d*";
 		String sessionRegEx = "\\d";
 		final String axleRegEx = "\\d";
 		String timeStampRegEx = ".*";
@@ -98,6 +98,9 @@ public class VehicleRecordManagerImpl implements VehicleRecordManager {
 		}
 
 		if (direction != null && !"".equalsIgnoreCase(direction)) {
+			if (AppConstants.SOUTHBOUND.equalsIgnoreCase(direction)) {
+				rawDataRegEx = "^B\\d*";
+			}
 			directionRegEx = direction;
 		}
 
