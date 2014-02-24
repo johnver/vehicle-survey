@@ -7,6 +7,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
 import com.dg.survey.analyzer.VehicleRecord;
+import com.dg.survey.util.AppConstants;
 
 /**
  * @author johnver
@@ -112,15 +113,15 @@ public class VehicleRecordEntity {
 	public String getPersistentString() {
 		final StringBuilder builder = new StringBuilder();
 		builder.append(this.rawData);
-		builder.append("|");
+		builder.append(AppConstants.DELIMITER);
 		builder.append(this.day);
-		builder.append("|");
+		builder.append(AppConstants.DELIMITER);
 		builder.append(this.axle);
-		builder.append("|");
+		builder.append(AppConstants.DELIMITER);
 		builder.append(this.timestamp);
-		builder.append("|");
+		builder.append(AppConstants.DELIMITER);
 		builder.append(this.direction);
-		builder.append("|");
+		builder.append(AppConstants.DELIMITER);
 		builder.append(this.speed);
 
 		return builder.toString();

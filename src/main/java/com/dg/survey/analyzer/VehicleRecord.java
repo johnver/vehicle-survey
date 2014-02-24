@@ -9,6 +9,8 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
+import com.dg.survey.util.AppConstants;
+
 /**
  * @author johnver
  * 
@@ -21,9 +23,8 @@ public final class VehicleRecord {
 	private final String prefix;
 	private final Timestamp timestamp;
 
-	public static String TIMESTAMP_FORMAT = "HH:mm:ss.SSS";
 	public static final DateFormat DATE_FORMAT = new SimpleDateFormat(
-			TIMESTAMP_FORMAT);
+			AppConstants.TIMESTAMP_FORMAT);
 
 	public VehicleRecord(final VehicleRecord previous, final String record) {
 		this.validate(record);

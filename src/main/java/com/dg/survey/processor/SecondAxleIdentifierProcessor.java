@@ -3,10 +3,12 @@
  */
 package com.dg.survey.processor;
 
+import java.util.logging.Logger;
+
 import com.dg.survey.analyzer.VehicleRecord;
 import com.dg.survey.model.LoadingContext;
 import com.dg.survey.model.VehicleRecordEntity;
-import com.dg.survey.util.TimeCalculator;
+import com.dg.survey.util.AppConstants;
 
 /**
  * @author johnver
@@ -14,24 +16,14 @@ import com.dg.survey.util.TimeCalculator;
  */
 public class SecondAxleIdentifierProcessor implements VehicleRecordProcessor {
 
-	private static double SECOND_AXLE_DISTANCE = 2.5;
+	private static final Logger logger = Logger
+			.getLogger(SecondAxleIdentifierProcessor.class.getName());
 
-	private static double ESTIMATED_SPEED_DISTANCE_KMS = 60; // 60
-	private static double ESTIMATED_SPEED_DISTANCE_START_RANGE = (ESTIMATED_SPEED_DISTANCE_KMS - 55) * 1000; // 5kms
-	private static double ESTIMATED_SPEED_DISTANCE_END_RANGE = (ESTIMATED_SPEED_DISTANCE_KMS + 55) * 1000; // 115kms
+	private final VehicleRecordProcessor successor;
 
-	private static double ESTIMATED_SPPED_TIME = 1 * 1000 * 60 * 60; // 1 hr
-																		// converted
-																		// to
-																		// milliseconds.
-
-	private static int ROUGH_TIME_TO_HIT_THE_SECOND_AXLE_START_RANGE = TimeCalculator
-			.calculateTime(SECOND_AXLE_DISTANCE,
-					ESTIMATED_SPEED_DISTANCE_START_RANGE, ESTIMATED_SPPED_TIME);
-
-	private static int ROUGH_TIME_TO_HIT_THE_SECOND_AXLE_END_RANGE = TimeCalculator
-			.calculateTime(SECOND_AXLE_DISTANCE,
-					ESTIMATED_SPEED_DISTANCE_END_RANGE, ESTIMATED_SPPED_TIME);
+	public SecondAxleIdentifierProcessor() {
+		this.successor = new DirectionIdentifierProcessor();
+	}
 
 	/*
 	 * (non-Javadoc)
@@ -44,7 +36,7 @@ public class SecondAxleIdentifierProcessor implements VehicleRecordProcessor {
 			final VehicleRecordEntity vehicleRecordEntity,
 			final LoadingContext context) throws Exception {
 
-		String axle = "1";
+		String axle = AppConstants.FIRST_AXLE;
 
 		VehicleRecord previous = vehicleRecord.getPrevious();
 		boolean prefixMatch = false;
@@ -53,20 +45,15 @@ public class SecondAxleIdentifierProcessor implements VehicleRecordProcessor {
 				prefixMatch = true;
 				final long timeDiff = vehicleRecord.getTimestamp().getTime()
 						- previous.getTimestamp().getTime();
-				if (timeDiff >= ROUGH_TIME_TO_HIT_THE_SECOND_AXLE_END_RANGE
-						&& timeDiff <= ROUGH_TIME_TO_HIT_THE_SECOND_AXLE_START_RANGE) {
-					axle = "2";
+				if (timeDiff >= AppConstants.ROUGH_TIME_TO_HIT_THE_SECOND_AXLE_END_RANGE
+						&& timeDiff <= AppConstants.ROUGH_TIME_TO_HIT_THE_SECOND_AXLE_START_RANGE) {
+					axle = AppConstants.SECOND_AXLE;
 
-					String direction = "N";
-					if (vehicleRecord.getPrevious() != null
-							&& !vehicleRecord.getPrevious().getPrefix()
-									.equals(vehicleRecord.getPrefix())) {
-						direction = "S";
-					}
-					vehicleRecordEntity.setDirection(direction);
-
-					final double speed = SECOND_AXLE_DISTANCE / timeDiff;
-					vehicleRecordEntity.setSpeed(new Double(speed).toString());
+					final double speed = AppConstants.SECOND_AXLE_DISTANCE
+							/ timeDiff;
+					final double rounded = Math.round(speed * 1000.0) / 1000.0;
+					vehicleRecordEntity
+							.setSpeed(new Double(rounded).toString());
 				}
 			} else {
 				previous = previous.getPrevious();
@@ -74,6 +61,12 @@ public class SecondAxleIdentifierProcessor implements VehicleRecordProcessor {
 		}
 
 		vehicleRecordEntity.setAxle(axle);
+
+		if (this.successor != null) {
+			this.successor.process(vehicleRecord, vehicleRecordEntity, context);
+		} else {
+			logger.info("End of the chain");
+		}
 
 	}
 }
