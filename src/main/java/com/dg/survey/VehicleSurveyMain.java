@@ -50,7 +50,6 @@ public class VehicleSurveyMain {
 			final List<String> options = new LinkedList<String>();
 			options.add("[1] - Total vehicle count in each direction.");
 			options.add("[2] - Peak volume times.");
-			options.add("[2] - Peak volume times.");
 			options.add("[3] - Speed distribution of traffic.");
 			options.add("[4] - Rough distance between cars.");
 			final Form reportForm = new Form(message, options);

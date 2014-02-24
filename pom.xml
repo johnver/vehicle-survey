@@ -35,7 +35,6 @@
 				<version>1.2.1</version>
 				<configuration>
 					<executable>java</executable>
-					<classpathScope>test</classpathScope>
 					<mainClass>com.dg.survey.VehicleSurveyMain</mainClass>
 				</configuration>
 			</plugin>
