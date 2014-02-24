@@ -75,7 +75,7 @@ public class VehicleRecordTest {
 		public void given_a_valid_record() {
 			this.record = "A268981";
 			this.previous = null;
-			this.expectedTimestampStr = "12:04:28.981";
+			this.expectedTimestampStr = "00:04:28.981";
 		}
 
 		public void when_object_is_instantiated() {
@@ -108,7 +108,8 @@ public class VehicleRecordTest {
 			final DateFormat df = VehicleRecord.DATE_FORMAT;
 			final String actualOutput = df.format(this.vehicleRecord
 					.getTimestamp());
-			Assert.assertTrue(this.expectedTimestampStr.equals(actualOutput));
+			Assert.assertTrue("actual: " + actualOutput,
+					this.expectedTimestampStr.equals(actualOutput));
 
 		}
 

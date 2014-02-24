@@ -26,7 +26,12 @@ public class VehicleSurveyMain {
 	 * @param args
 	 */
 	public static void main(final String[] args) {
-		if (false) {
+
+		Boolean analyze = true;
+		if (args.length > 0) {
+			analyze = new Boolean(args[0]);
+		}
+		if (analyze) {
 			final VehicleSurveyAnalyzer analyzer = new VehicleSurveyAnalyzerImpl();
 			final InputStream inputStream = analyzer.getClass()
 					.getClassLoader().getResourceAsStream("sample.txt");

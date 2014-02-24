@@ -3,5 +3,6 @@
 .settings/
 target/
 test-output/
+app-data/db.txt
 .xml/
 */.xml/
