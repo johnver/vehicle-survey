@@ -3,6 +3,8 @@
  */
 package com.dg.survey.persistence;
 
+import java.sql.Timestamp;
+
 import com.dg.survey.model.TimeRange;
 import com.dg.survey.model.VehicleRecordEntity;
 
@@ -24,7 +26,15 @@ public interface VehicleRecordManager {
 	public int retrieveTotalCountPerSessionDirection(String session,
 			String direction) throws Exception;
 
+	public double retrieveAverageSpeedPerSessionDirection(String session,
+			String direction) throws Exception;
+
 	public int retrieveTotalCountPerSessionDirection(final String session,
+			final String direction, final TimeRange timerange) throws Exception;
+
+	public Timestamp retrieveSessionEndTime(String session) throws Exception;
+
+	public double retrieveAverageSpeedPerSessionDirection(final String session,
 			final String direction, final TimeRange timerange) throws Exception;
 
 }

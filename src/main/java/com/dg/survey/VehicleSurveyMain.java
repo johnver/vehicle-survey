@@ -87,18 +87,42 @@ public class VehicleSurveyMain {
 			periodForm.display();
 			final int periodType = new Integer(periodForm.getInput());
 
+			int directionType = -1;
+			if (reportType == 2) {
+				System.out.println("==============");
+
+				final String directionMessage = "Please select the direction to sort the peak hours.";
+				final List<String> directionOptions = new LinkedList<String>();
+				directionOptions.add("[1] - Southbound");
+				directionOptions.add("[2] - Northbound");
+
+				final Form directionForm = new Form(directionMessage,
+						directionOptions);
+				directionForm.display();
+				directionType = new Integer(directionForm.getInput());
+
+			}
+
 			System.out.println("==============");
 			System.out.println();
 			System.out.println("Generating the report... Please wait.");
 			System.out.println();
 
-			if (reportType == 1) {
+			if (reportType == 1 || reportType == 2 || reportType == 3) {
 				final ReportGenerator<TotalCountReportParameter> totalCountReport = new ReportGeneratorImpl();
 				final TotalCountReportParameter parameter = new TotalCountReportParameter();
+				parameter.setReportType(reportType);
 				parameter.setSessionType(sessionType);
 				parameter.setPeriodType(periodType);
-				final Table table = totalCountReport.generate(parameter);
-				table.display();
+				parameter.setDirectionType(directionType);
+				Table table;
+				try {
+					table = totalCountReport.generate(parameter);
+					table.display();
+				} catch (final Exception e) {
+					System.out
+							.println("There was a problem in generating the report.");
+				}
 
 				System.out.println();
 				System.out.println("Press enter to continue...");

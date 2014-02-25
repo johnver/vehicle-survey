@@ -11,5 +11,5 @@ import com.dg.survey.ui.Table;
  */
 public interface ReportGenerator<T> {
 
-	public Table generate(T parameter);
+	public Table generate(T parameter) throws Exception;
 }

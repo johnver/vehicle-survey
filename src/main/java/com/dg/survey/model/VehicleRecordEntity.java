@@ -21,8 +21,7 @@ public class VehicleRecordEntity {
 	private String axle;
 	private String speed;
 	private String timestamp;
-
-	private static String TIME_FORMAT = "HH:mm:ss.SSS";
+	private String timeDifference;
 
 	public VehicleRecordEntity() {
 
@@ -31,7 +30,8 @@ public class VehicleRecordEntity {
 	public VehicleRecordEntity(final VehicleRecord vehicleRecord) {
 		this.rawData = vehicleRecord.getRecord();
 		this.direction = vehicleRecord.getPrefix();
-		final DateFormat sf = new SimpleDateFormat(TIME_FORMAT);
+		final DateFormat sf = new SimpleDateFormat(
+				AppConstants.TIMESTAMP_FORMAT);
 		this.timestamp = sf.format(vehicleRecord.getTimestamp());
 	}
 
@@ -123,6 +123,8 @@ public class VehicleRecordEntity {
 		builder.append(this.direction);
 		builder.append(AppConstants.DELIMITER);
 		builder.append(this.speed);
+		builder.append(AppConstants.DELIMITER);
+		builder.append(this.timeDifference);
 
 		return builder.toString();
 	}
@@ -140,6 +142,21 @@ public class VehicleRecordEntity {
 	 */
 	public void setTimestamp(final String timestamp) {
 		this.timestamp = timestamp;
+	}
+
+	/**
+	 * @return the timeDifference
+	 */
+	public String getTimeDifference() {
+		return this.timeDifference;
+	}
+
+	/**
+	 * @param timeDifference
+	 *            the timeDifference to set
+	 */
+	public void setTimeDifference(final String timeDifference) {
+		this.timeDifference = timeDifference;
 	}
 
 }

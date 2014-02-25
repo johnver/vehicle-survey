@@ -54,6 +54,7 @@ public class SecondAxleIdentifierProcessor implements VehicleRecordProcessor {
 					final double rounded = Math.round(speed * 1000.0) / 1000.0;
 					vehicleRecordEntity
 							.setSpeed(new Double(rounded).toString());
+					vehicleRecordEntity.setTimeDifference("" + timeDiff);
 				}
 			} else {
 				previous = previous.getPrevious();

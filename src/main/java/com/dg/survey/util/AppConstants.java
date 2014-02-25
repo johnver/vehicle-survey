@@ -26,6 +26,7 @@ public class AppConstants {
 					ESTIMATED_SPEED_DISTANCE_END_RANGE, ESTIMATED_SPPED_TIME);
 	public static final String DELIMITER = "|";
 	public static final String ESCAPE_CHAR = "\\";
-	public static String TIMESTAMP_FORMAT = "HH:mm:ss.SSS";
+	public static String TIMESTAMP_FORMAT = "dd HH:mm:ss.SSS";
+	public static String TIMEONLY_FORMAT = "HH:mm:ss.SSS";
 
 }

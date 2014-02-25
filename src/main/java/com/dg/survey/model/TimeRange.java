@@ -53,9 +53,17 @@ public class TimeRange {
 		this.endTime = endTime;
 	}
 
+	public String getDay() {
+		final DateFormat format = new SimpleDateFormat("d");
+		final String day = format.format(this.startTime);
+
+		return day;
+
+	}
+
 	public String getDisplay() {
 		final DateFormat format = new SimpleDateFormat(
-				AppConstants.TIMESTAMP_FORMAT);
+				AppConstants.TIMEONLY_FORMAT);
 		final String startString = format.format(this.startTime);
 		final String endString = format.format(this.endTime);
 

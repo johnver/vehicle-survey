@@ -19,6 +19,7 @@ import java.util.regex.Pattern;
 import com.dg.survey.model.TimeRange;
 import com.dg.survey.model.VehicleRecordEntity;
 import com.dg.survey.util.AppConstants;
+import com.dg.survey.util.SpeedCalculator;
 
 /**
  * @author johnver
@@ -92,6 +93,7 @@ public class VehicleRecordManagerImpl implements VehicleRecordManager {
 		String timeStampRegEx = ".*";
 		String directionRegEx = "\\w";
 		final String speedRegEx = ".*";
+		final String timeDiff = ".*";
 
 		if (session != null && !"".equalsIgnoreCase(session)) {
 			sessionRegEx = session;
@@ -120,6 +122,8 @@ public class VehicleRecordManagerImpl implements VehicleRecordManager {
 		regExBuilder.append(directionRegEx);
 		regExBuilder.append(AppConstants.ESCAPE_CHAR + AppConstants.DELIMITER);
 		regExBuilder.append(speedRegEx);
+		regExBuilder.append(AppConstants.ESCAPE_CHAR + AppConstants.DELIMITER);
+		regExBuilder.append(timeDiff);
 
 		final Pattern regexp = Pattern.compile(regExBuilder.toString());
 		final Matcher matcher = regexp.matcher("");
@@ -182,4 +186,183 @@ public class VehicleRecordManagerImpl implements VehicleRecordManager {
 		this.dbFilePath = dbFilePath;
 	}
 
+	public Timestamp retrieveSessionEndTime(final String session)
+			throws Exception {
+		Timestamp endTime = null;
+		BufferedReader br = null;
+
+		final String rawDataRegEx = "^[A,B]\\d*";
+		String sessionRegEx = "\\d";
+		final String axleRegEx = "\\d";
+		final String timeStampRegEx = "(.*)";
+		final String directionRegEx = "\\w";
+		final String speedRegEx = ".*";
+		final String timeDiff = ".*";
+
+		if (session != null && !"".equalsIgnoreCase(session)) {
+			sessionRegEx = session;
+		}
+
+		final StringBuilder regExBuilder = new StringBuilder();
+		regExBuilder.append(rawDataRegEx);
+		regExBuilder.append(AppConstants.ESCAPE_CHAR + AppConstants.DELIMITER);
+		regExBuilder.append(sessionRegEx);
+		regExBuilder.append(AppConstants.ESCAPE_CHAR + AppConstants.DELIMITER);
+		regExBuilder.append(axleRegEx);
+		regExBuilder.append(AppConstants.ESCAPE_CHAR + AppConstants.DELIMITER);
+		regExBuilder.append(timeStampRegEx);
+		regExBuilder.append(AppConstants.ESCAPE_CHAR + AppConstants.DELIMITER);
+		regExBuilder.append(directionRegEx);
+		regExBuilder.append(AppConstants.ESCAPE_CHAR + AppConstants.DELIMITER);
+		regExBuilder.append(speedRegEx);
+		regExBuilder.append(AppConstants.ESCAPE_CHAR + AppConstants.DELIMITER);
+		regExBuilder.append(timeDiff);
+
+		final Pattern regexp = Pattern.compile(regExBuilder.toString());
+		final Matcher matcher = regexp.matcher("");
+
+		try {
+
+			String sCurrentLine;
+			final InputStreamReader inputStreamReader = new FileReader(
+					this.dbFilePath);
+			br = new BufferedReader(inputStreamReader);
+
+			final DateFormat format = new SimpleDateFormat(
+					AppConstants.TIMESTAMP_FORMAT);
+
+			while ((sCurrentLine = br.readLine()) != null) {
+				matcher.reset(sCurrentLine); // reset the input
+				if (matcher.matches()) {
+
+					final String timestamp = matcher.group(1);
+					final java.util.Date date = format.parse(timestamp);
+					endTime = new Timestamp(date.getTime());
+
+				}
+
+			}
+
+		} catch (final Exception e) {
+			throw e;
+		} finally {
+			try {
+				if (br != null) {
+					br.close();
+				}
+			} catch (final IOException ex) {
+				ex.printStackTrace();
+			}
+		}
+		return endTime;
+	}
+
+	public double retrieveAverageSpeedPerSessionDirection(final String session,
+			final String direction, final TimeRange timerange) throws Exception {
+		double speedMeterPerMillis = 0;
+		int count = 0;
+		BufferedReader br = null;
+
+		String rawDataRegEx = "^[A,B]\\d*";
+		String sessionRegEx = "\\d";
+		final String axleRegEx = "\\d";
+		String timeStampRegEx = ".*";
+		String directionRegEx = "\\w";
+		final String speedRegEx = "(.*)";
+		final String timeDiff = ".*";
+
+		if (session != null && !"".equalsIgnoreCase(session)) {
+			sessionRegEx = session;
+		}
+
+		if (direction != null && !"".equalsIgnoreCase(direction)) {
+			if (AppConstants.SOUTHBOUND.equalsIgnoreCase(direction)) {
+				rawDataRegEx = "^B\\d*";
+			}
+			directionRegEx = direction;
+		}
+
+		if (timerange != null) {
+			timeStampRegEx = timerange.getRegEx();
+		}
+
+		final StringBuilder regExBuilder = new StringBuilder();
+		regExBuilder.append(rawDataRegEx);
+		regExBuilder.append(AppConstants.ESCAPE_CHAR + AppConstants.DELIMITER);
+		regExBuilder.append(sessionRegEx);
+		regExBuilder.append(AppConstants.ESCAPE_CHAR + AppConstants.DELIMITER);
+		regExBuilder.append(axleRegEx);
+		regExBuilder.append(AppConstants.ESCAPE_CHAR + AppConstants.DELIMITER);
+		regExBuilder.append(timeStampRegEx);
+		regExBuilder.append(AppConstants.ESCAPE_CHAR + AppConstants.DELIMITER);
+		regExBuilder.append(directionRegEx);
+		regExBuilder.append(AppConstants.ESCAPE_CHAR + AppConstants.DELIMITER);
+		regExBuilder.append(speedRegEx);
+		regExBuilder.append(AppConstants.ESCAPE_CHAR + AppConstants.DELIMITER);
+		regExBuilder.append(timeDiff);
+
+		final Pattern regexp = Pattern.compile(regExBuilder.toString());
+		final Matcher matcher = regexp.matcher("");
+
+		try {
+
+			String sCurrentLine;
+			final InputStreamReader inputStreamReader = new FileReader(
+					this.dbFilePath);
+			br = new BufferedReader(inputStreamReader);
+
+			final DateFormat format = new SimpleDateFormat(
+					AppConstants.TIMESTAMP_FORMAT);
+
+			while ((sCurrentLine = br.readLine()) != null) {
+				matcher.reset(sCurrentLine); // reset the input
+				if (matcher.matches()) {
+					if (timerange != null) {
+						// System.out.println(sCurrentLine);
+						final String timestamp = matcher.group(1);
+						final java.util.Date date = format.parse(timestamp);
+						final Timestamp aTime = new Timestamp(date.getTime());
+						if (timerange.isInRange(aTime)) {
+							final String speed = matcher.group(2);
+							speedMeterPerMillis = new Double(speed)
+									+ speedMeterPerMillis;
+							count++;
+						}
+					} else {
+						final String speed = matcher.group(1);
+						speedMeterPerMillis = new Double(speed)
+								+ speedMeterPerMillis;
+						count++;
+					}
+
+				}
+
+			}
+
+		} catch (final Exception e) {
+			throw e;
+		} finally {
+			try {
+				if (br != null) {
+					br.close();
+				}
+			} catch (final IOException ex) {
+				ex.printStackTrace();
+			}
+		}
+
+		final double averageSpeed = speedMeterPerMillis / count;
+		// Convert to km/h
+		final double speedKph = SpeedCalculator
+				.convertMeterPerMillisecondToKph(averageSpeed);
+
+		return speedKph;
+	}
+
+	public double retrieveAverageSpeedPerSessionDirection(final String session,
+			final String direction) throws Exception {
+
+		return this.retrieveAverageSpeedPerSessionDirection(session, direction,
+				null);
+	}
 }

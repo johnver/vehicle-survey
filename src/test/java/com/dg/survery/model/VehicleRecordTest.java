@@ -75,7 +75,7 @@ public class VehicleRecordTest {
 		public void given_a_valid_record() {
 			this.record = "A268981";
 			this.previous = null;
-			this.expectedTimestampStr = "00:04:28.981";
+			this.expectedTimestampStr = "01 00:04:28.981";
 		}
 
 		public void when_object_is_instantiated() {
