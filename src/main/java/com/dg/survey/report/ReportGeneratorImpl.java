@@ -76,10 +76,16 @@ public class ReportGeneratorImpl implements
 				if (ranges.isEmpty()) {
 					if (parameter.getReportType() == 1
 							|| parameter.getReportType() == 2) {
-						calculateCount(parameter, totalCountRowList, session);
+						this.calculateCount(parameter, totalCountRowList,
+								session);
 					} else if (parameter.getReportType() == 3) {
 
-						calculateSpeed(parameter, totalCountRowList, session);
+						this.calculateSpeed(parameter, totalCountRowList,
+								session);
+					} else if (parameter.getReportType() == 4) {
+
+						this.calculateDistance(parameter, totalCountRowList,
+								session);
 					}
 
 				} else {
@@ -92,6 +98,9 @@ public class ReportGeneratorImpl implements
 									timeRange);
 						} else if (parameter.getReportType() == 3) {
 							this.calculateSpeed(totalCountRowList, session,
+									timeRange);
+						} else if (parameter.getReportType() == 4) {
+							this.calculateDistance(totalCountRowList, session,
 									timeRange);
 						}
 
@@ -119,6 +128,9 @@ public class ReportGeneratorImpl implements
 		} else if (parameter.getReportType() == 3) {
 			header.add("Southbound km/h");
 			header.add("Northbound km/h");
+		} else if (parameter.getReportType() == 4) {
+			header.add("Southbound Ave Distance (km)");
+			header.add("Northbound Ave Distance (km)");
 		}
 
 		final Table table = new Table(header);
@@ -132,19 +144,35 @@ public class ReportGeneratorImpl implements
 		return table;
 	}
 
+	private void calculateDistance(final TotalCountReportParameter parameter,
+			final List<TotalCountRow> totalCountRowList, final String session)
+			throws Exception {
+		final int southBoundCount = (int) this.vehicleRecordManager
+				.retrieveAverageDistancePerSessionDirection(session,
+						AppConstants.SOUTHBOUND);
+
+		final int northBoundCount = (int) this.vehicleRecordManager
+				.retrieveAverageDistancePerSessionDirection(session,
+						AppConstants.NORTHBOUND);
+		final TotalCountRow row = new TotalCountRow("Session "
+				+ parameter.getSessionType(), " ",
+				new Integer(southBoundCount), new Integer(northBoundCount));
+		totalCountRowList.add(row);
+	}
+
 	private void calculateSpeed(final TotalCountReportParameter parameter,
 			final List<TotalCountRow> totalCountRowList, final String session)
 			throws Exception {
 		final int southBoundCount = (int) this.vehicleRecordManager
-				.retrieveAverageSpeedPerSessionDirection(
-						session, AppConstants.SOUTHBOUND);
+				.retrieveAverageSpeedPerSessionDirection(session,
+						AppConstants.SOUTHBOUND);
 
 		final int northBoundCount = (int) this.vehicleRecordManager
-				.retrieveAverageSpeedPerSessionDirection(
-						session, AppConstants.NORTHBOUND);
+				.retrieveAverageSpeedPerSessionDirection(session,
+						AppConstants.NORTHBOUND);
 		final TotalCountRow row = new TotalCountRow("Session "
-				+ parameter.getSessionType(), " ", new Integer(
-				southBoundCount), new Integer(northBoundCount));
+				+ parameter.getSessionType(), " ",
+				new Integer(southBoundCount), new Integer(northBoundCount));
 		totalCountRowList.add(row);
 	}
 
@@ -159,8 +187,8 @@ public class ReportGeneratorImpl implements
 				.retrieveTotalCountPerSessionDirection(session,
 						AppConstants.NORTHBOUND);
 		final TotalCountRow row = new TotalCountRow("Session "
-				+ parameter.getSessionType(), " ", new Integer(
-				southBoundCount), new Integer(northBoundCount));
+				+ parameter.getSessionType(), " ",
+				new Integer(southBoundCount), new Integer(northBoundCount));
 		totalCountRowList.add(row);
 	}
 
@@ -178,6 +206,23 @@ public class ReportGeneratorImpl implements
 		final TotalCountRow row = new TotalCountRow(displayDay,
 				timeRange.getDisplay(), new Integer(southBoundSpeed),
 				new Integer(northBoundSpeed));
+		totalCountRowList.add(row);
+	}
+
+	private void calculateDistance(final List<TotalCountRow> totalCountRowList,
+			final String session, final TimeRange timeRange) throws Exception {
+		final int southBoundDistance = (int) this.vehicleRecordManager
+				.retrieveAverageDistancePerSessionDirection(session,
+						AppConstants.SOUTHBOUND, timeRange);
+
+		final int northBoundDistance = (int) this.vehicleRecordManager
+				.retrieveAverageDistancePerSessionDirection(session,
+						AppConstants.NORTHBOUND, timeRange);
+
+		final String displayDay = "" + (new Integer(session) + 1);
+		final TotalCountRow row = new TotalCountRow(displayDay,
+				timeRange.getDisplay(), new Integer(southBoundDistance),
+				new Integer(northBoundDistance));
 		totalCountRowList.add(row);
 	}
 

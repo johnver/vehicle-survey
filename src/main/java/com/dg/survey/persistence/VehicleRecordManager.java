@@ -37,4 +37,10 @@ public interface VehicleRecordManager {
 	public double retrieveAverageSpeedPerSessionDirection(final String session,
 			final String direction, final TimeRange timerange) throws Exception;
 
+	public double retrieveAverageDistancePerSessionDirection(String session,
+			String direction, TimeRange timerange) throws Exception;
+
+	public double retrieveAverageDistancePerSessionDirection(String session,
+			String direction) throws Exception;
+
 }

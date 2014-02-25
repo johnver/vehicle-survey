@@ -79,6 +79,15 @@ public class VehicleRecordManagerImplTest {
 		this.testFixture.then_actual_speed_and_expected_speed_should_match();
 	}
 
+	@Test
+	public void should_retrieve_average_distance_with_timestamp() {
+		this.testFixture.given_a_direction();
+		this.testFixture
+				.when_retrieve_average_distance_per_direction_with_time_is_invoked();
+		this.testFixture
+				.then_actual_distance_and_expected_distance_should_match();
+	}
+
 	class VehicleRecordManagerImplTestFixture {
 
 		private VehicleRecordManagerImpl manager;
@@ -91,7 +100,10 @@ public class VehicleRecordManagerImplTest {
 		private Timestamp expectedEndTime;
 		private Timestamp actualEndTime;
 		private double actualAverageSpeed;
-		private double expectedAverageSpeed;;
+		private double expectedAverageSpeed;
+
+		private double actualAverageDistance;
+		private double expectedAverageDistance;
 
 		private static final String TEST_DB_FILE = "app-data/test-db.txt";
 
@@ -100,6 +112,8 @@ public class VehicleRecordManagerImplTest {
 			this.expectedCount = 6;
 			this.session = "0";
 			this.expectedAverageSpeed = 61.0;
+
+			this.expectedAverageDistance = 14.01;
 		}
 
 		public void given_a_timerange() {
@@ -186,6 +200,18 @@ public class VehicleRecordManagerImplTest {
 			}
 		}
 
+		public void when_retrieve_average_distance_per_direction_with_time_is_invoked() {
+			this.manager = new VehicleRecordManagerImpl();
+			this.manager.setDbFilePath(TEST_DB_FILE);
+			try {
+				this.actualAverageDistance = this.manager
+						.retrieveAverageDistancePerSessionDirection(
+								this.session, this.direction, this.timeRange);
+			} catch (final Exception e) {
+				Assert.fail("Should not throw an exception: " + e.getMessage());
+			}
+		}
+
 		public void when_retrieve_session_end_time_is_invoked() {
 			this.manager = new VehicleRecordManagerImpl();
 			this.manager.setDbFilePath(TEST_DB_FILE);
@@ -210,6 +236,12 @@ public class VehicleRecordManagerImplTest {
 		public void then_actual_speed_and_expected_speed_should_match() {
 			Assert.assertTrue("actualAverageSpeed: " + this.actualAverageSpeed,
 					this.actualAverageSpeed == this.expectedAverageSpeed);
+		}
+
+		public void then_actual_distance_and_expected_distance_should_match() {
+			Assert.assertTrue("actualAverageDistance: "
+					+ this.actualAverageDistance,
+					this.actualAverageDistance == this.expectedAverageDistance);
 		}
 
 	}

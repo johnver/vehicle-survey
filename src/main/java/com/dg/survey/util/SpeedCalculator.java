@@ -15,4 +15,16 @@ public class SpeedCalculator {
 		return (int) kphSpeed;
 	}
 
+	public static double convertMeterToKm(final double meter) {
+		final double kilometer = meter / 1000;
+
+		return Math.round(kilometer * 100.0) / 100.0;
+	}
+
+	public static int calculateDistance(final double speed, final long timeDiff) {
+		final double distance = speed * timeDiff;
+
+		return (int) distance;
+	}
+
 }

@@ -108,7 +108,8 @@ public class VehicleSurveyMain {
 			System.out.println("Generating the report... Please wait.");
 			System.out.println();
 
-			if (reportType == 1 || reportType == 2 || reportType == 3) {
+			if (reportType == 1 || reportType == 2 || reportType == 3
+					|| reportType == 4) {
 				final ReportGenerator<TotalCountReportParameter> totalCountReport = new ReportGeneratorImpl();
 				final TotalCountReportParameter parameter = new TotalCountReportParameter();
 				parameter.setReportType(reportType);

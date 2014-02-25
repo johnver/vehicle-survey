@@ -359,10 +359,153 @@ public class VehicleRecordManagerImpl implements VehicleRecordManager {
 		return speedKph;
 	}
 
+	public double retrieveAverageDistancePerSessionDirection(
+			final String session, final String direction,
+			final TimeRange timerange) throws Exception {
+		double totalDistance = 0;
+		int count = 0;
+		BufferedReader br = null;
+
+		String rawDataRegEx = "^[A,B]\\d*";
+		String sessionRegEx = "\\d";
+		final String axleRegEx = "\\d";
+		String timeStampRegEx = "(.*)";
+		String directionRegEx = "\\w";
+		final String speedRegEx = "(.*)";
+		final String timeDiff = ".*";
+
+		if (session != null && !"".equalsIgnoreCase(session)) {
+			sessionRegEx = session;
+		}
+
+		if (direction != null && !"".equalsIgnoreCase(direction)) {
+			if (AppConstants.SOUTHBOUND.equalsIgnoreCase(direction)) {
+				rawDataRegEx = "^B\\d*";
+			}
+			directionRegEx = direction;
+		}
+
+		if (timerange != null) {
+			timeStampRegEx = timerange.getRegEx();
+		}
+
+		final StringBuilder regExBuilder = new StringBuilder();
+		regExBuilder.append(rawDataRegEx);
+		regExBuilder.append(AppConstants.ESCAPE_CHAR + AppConstants.DELIMITER);
+		regExBuilder.append(sessionRegEx);
+		regExBuilder.append(AppConstants.ESCAPE_CHAR + AppConstants.DELIMITER);
+		regExBuilder.append(axleRegEx);
+		regExBuilder.append(AppConstants.ESCAPE_CHAR + AppConstants.DELIMITER);
+		regExBuilder.append(timeStampRegEx);
+		regExBuilder.append(AppConstants.ESCAPE_CHAR + AppConstants.DELIMITER);
+		regExBuilder.append(directionRegEx);
+		regExBuilder.append(AppConstants.ESCAPE_CHAR + AppConstants.DELIMITER);
+		regExBuilder.append(speedRegEx);
+		regExBuilder.append(AppConstants.ESCAPE_CHAR + AppConstants.DELIMITER);
+		regExBuilder.append(timeDiff);
+
+		final Pattern regexp = Pattern.compile(regExBuilder.toString());
+		final Matcher matcher = regexp.matcher("");
+
+		try {
+
+			String sCurrentLine;
+			final InputStreamReader inputStreamReader = new FileReader(
+					this.dbFilePath);
+			br = new BufferedReader(inputStreamReader);
+
+			final DateFormat format = new SimpleDateFormat(
+					AppConstants.TIMESTAMP_FORMAT);
+
+			// Remember the timestamp and speed of the previous car.
+			Double previousSpeed = null;
+			Timestamp previousTime = null;
+			while ((sCurrentLine = br.readLine()) != null) {
+				matcher.reset(sCurrentLine); // reset the input
+				if (matcher.matches()) {
+					if (timerange != null) {
+						// System.out.println(sCurrentLine);
+						final String timestamp = matcher.group(1);
+						final java.util.Date date = format.parse(timestamp);
+						final Timestamp aTime = new Timestamp(date.getTime());
+						if (timerange.isInRange(aTime)) {
+							final String speed = matcher.group(2);
+							final Double thisSpeed = new Double(speed);
+
+							// Do calculation of the distance between two cars.
+							if (previousSpeed != null && previousTime != null) {
+								final long timeDiffBetweenCars = aTime
+										.getTime() - previousTime.getTime();
+								final double thisDistance = SpeedCalculator
+										.calculateDistance(previousSpeed,
+												timeDiffBetweenCars);
+
+								totalDistance = thisDistance + totalDistance;
+								count++;
+							} else {
+								previousSpeed = thisSpeed;
+								previousTime = aTime;
+							}
+
+						}
+					} else {
+						final String timestamp = matcher.group(1);
+						final java.util.Date date = format.parse(timestamp);
+						final Timestamp aTime = new Timestamp(date.getTime());
+						final String speed = matcher.group(2);
+						final Double thisSpeed = new Double(speed);
+						// Do calculation of the distance between two cars.
+						if (previousSpeed != null && previousTime != null) {
+							final long timeDiffBetweenCars = aTime.getTime()
+									- previousTime.getTime();
+							final double thisDistance = SpeedCalculator
+									.calculateDistance(previousSpeed,
+											timeDiffBetweenCars);
+
+							totalDistance = thisDistance + totalDistance;
+							count++;
+						} else {
+							previousSpeed = thisSpeed;
+							previousTime = aTime;
+						}
+
+					}
+
+				}
+
+			}
+
+		} catch (final Exception e) {
+			throw e;
+		} finally {
+			try {
+				if (br != null) {
+					br.close();
+				}
+			} catch (final IOException ex) {
+				ex.printStackTrace();
+			}
+		}
+
+		final double averageDistance = totalDistance / count;
+		// Convert to km/h
+		final double kilometer = SpeedCalculator
+				.convertMeterToKm(averageDistance);
+
+		return kilometer;
+	}
+
 	public double retrieveAverageSpeedPerSessionDirection(final String session,
 			final String direction) throws Exception {
 
 		return this.retrieveAverageSpeedPerSessionDirection(session, direction,
 				null);
+	}
+
+	public double retrieveAverageDistancePerSessionDirection(
+			final String session, final String direction) throws Exception {
+
+		return this.retrieveAverageDistancePerSessionDirection(session,
+				direction, null);
 	}
 }
