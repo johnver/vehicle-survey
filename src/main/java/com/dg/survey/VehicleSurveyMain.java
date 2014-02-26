@@ -4,9 +4,11 @@
 package com.dg.survey;
 
 import java.io.InputStream;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.Set;
 
 import com.dg.survey.analyzer.VehicleSurveyAnalyzer;
 import com.dg.survey.analyzer.VehicleSurveyAnalyzerImpl;
@@ -14,6 +16,8 @@ import com.dg.survey.report.ReportGenerator;
 import com.dg.survey.report.ReportGeneratorImpl;
 import com.dg.survey.report.TotalCountReportParameter;
 import com.dg.survey.ui.Form;
+import com.dg.survey.ui.FormValidator;
+import com.dg.survey.ui.InputValidator;
 import com.dg.survey.ui.Table;
 
 /**
@@ -52,9 +56,22 @@ public class VehicleSurveyMain {
 			options.add("[2] - Peak volume times.");
 			options.add("[3] - Speed distribution of traffic.");
 			options.add("[4] - Rough distance between cars.");
-			final Form reportForm = new Form(message, options);
+			options.add("[5] - Exit");
+			final Set<Integer> validOptions = new HashSet<Integer>();
+			for (int i = 1; i <= 5; i++) {
+				validOptions.add(i);
+			}
+			final FormValidator validator = new InputValidator(validOptions);
+			final Form reportForm = new Form(message, options, validator);
 			reportForm.display();
 			final int reportType = new Integer(reportForm.getInput());
+
+			if (reportType == 5) {
+				// User chooses to Exit;
+				nextLine = null;
+				System.out.println("Thank you.");
+				break;
+			}
 
 			System.out.println("==============");
 
@@ -67,8 +84,14 @@ public class VehicleSurveyMain {
 			sessionOptions.add("[5] - Session 5");
 			sessionOptions.add("[6] - All");
 
+			final Set<Integer> sessionFormValidOptions = new HashSet<Integer>();
+			for (int i = 1; i <= 6; i++) {
+				sessionFormValidOptions.add(i);
+			}
+			final FormValidator sessionValidator = new InputValidator(
+					sessionFormValidOptions);
 			final Form sessionForm = new Form(sessionFormMessage,
-					sessionOptions);
+					sessionOptions, sessionValidator);
 			sessionForm.display();
 			final int sessionType = new Integer(sessionForm.getInput());
 
@@ -83,7 +106,15 @@ public class VehicleSurveyMain {
 			periodOptions.add("[5] - Per 15 minutes");
 			periodOptions.add("[6] - All");
 
-			final Form periodForm = new Form(periodFormMessage, periodOptions);
+			final Set<Integer> periodFormValidOptions = new HashSet<Integer>();
+			for (int i = 1; i <= 6; i++) {
+				periodFormValidOptions.add(i);
+			}
+			final FormValidator periodValidator = new InputValidator(
+					periodFormValidOptions);
+
+			final Form periodForm = new Form(periodFormMessage, periodOptions,
+					periodValidator);
 			periodForm.display();
 			final int periodType = new Integer(periodForm.getInput());
 
@@ -95,9 +126,15 @@ public class VehicleSurveyMain {
 				final List<String> directionOptions = new LinkedList<String>();
 				directionOptions.add("[1] - Southbound");
 				directionOptions.add("[2] - Northbound");
+				final Set<Integer> directionValidOptions = new HashSet<Integer>();
+				for (int i = 1; i <= 2; i++) {
+					directionValidOptions.add(i);
+				}
+				final FormValidator directionValidator = new InputValidator(
+						directionValidOptions);
 
 				final Form directionForm = new Form(directionMessage,
-						directionOptions);
+						directionOptions, directionValidator);
 				directionForm.display();
 				directionType = new Integer(directionForm.getInput());
 
